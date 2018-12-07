@@ -1,0 +1,92 @@
+#	   user: root
+#	machine: push900-64
+#	   tree: /R/stage/trees/info
+#	   date: Tue Jan 24 22:03:44 2012
+
+# .
+/set type=file uname=root gname=wheel mode=0755 nlink=1
+.               type=dir nlink=3 size=512
+
+# ./usr
+    usr             type=dir nlink=3 size=512
+
+# ./usr/share
+        share           type=dir nlink=3 size=512
+
+# ./usr/share/info
+/set type=file uname=root gname=wheel mode=0444 nlink=1
+            info            type=dir mode=0755 nlink=2 size=1024
+                am-utils.info.gz \
+                                size=97651 \
+                                md5digest=7d96bf3113294f425c36f2ee5f2e115f
+                as.info.gz      size=90331 \
+                                md5digest=f7947b3f3d3f690719dd9030e5c46a19
+                binutils.info.gz \
+                                size=45717 \
+                                md5digest=8d7b5121a3c8d7325f11a80dee8b41c3
+                com_err.info.gz size=7738 \
+                                md5digest=ea698b3d3a204f7e9aa841408a68e666
+                cpp.info.gz     size=68067 \
+                                md5digest=353d3200a1b723414626418ff6337361
+                cppinternals.info.gz \
+                                size=17145 \
+                                md5digest=e0b367efaa0bfaaefa05dc72de498c39
+                cvs.info.gz     size=131707 \
+                                md5digest=22b835c831b6fdbf10f4aa88b0638d7b
+                cvsclient.info.gz \
+                                size=28746 \
+                                md5digest=9e5755d35468c8336f0c516dd00ef705
+                diff.info.gz    size=59438 \
+                                md5digest=57789617aec4760f1f616406bfa0df52
+                dir             size=4496 \
+                                md5digest=31b25be6d7e798631756a9f507ee1d2d
+                gcc.info.gz     size=363148 \
+                                md5digest=9700a7893ef0aaf360dae6f3d40a7383
+                gccint.info.gz  size=424376 \
+                                md5digest=efeea9860c73ee97d80cfb6663247911
+                gdb.info.gz     size=256174 \
+                                md5digest=221b9ccf32ed856c6ef5bee831f33220
+                gdbint.info.gz  size=91576 \
+                                md5digest=27d4fa4ac3bba06a3c20bdb94bb37a88
+                gperf.info.gz   size=21424 \
+                                md5digest=aba3ebe24a5fd78d685d4b3997c795dc
+                grep.info.gz    size=26214 \
+                                md5digest=1f27b6142f8c4bd039cd35922a7cb8b0
+                groff.info.gz   size=159670 \
+                                md5digest=e7eaf2be946f9f67745e31eff0d2bf8c
+                heimdal.info.gz size=41576 \
+                                md5digest=a8deba3f260189dd66e29f1fafdade01
+                history.info.gz size=16559 \
+                                md5digest=757f06f1f4aa05d14c488f486782a077
+                info-stnd.info.gz \
+                                size=32446 \
+                                md5digest=c3fa12898f99e7a02468d4fc020f8631
+                info.info.gz    size=20820 \
+                                md5digest=ea120b48aa886709e6b90b7ccdab0e03
+                ld.info.gz      size=89508 \
+                                md5digest=80f65abd865beca8fd400cf829829df9
+                readline.info.gz \
+                                size=49650 \
+                                md5digest=ecabb2e0bb046f52e3fc09a318f401c2
+                regex.info.gz   size=30836 \
+                                md5digest=a30546cbc7047dcba62295b7f54ab8af
+                rluserman.info.gz \
+                                size=21809 \
+                                md5digest=53c7b0ab67ad7f7fe46a48b093bd3529
+                send-pr.info.gz size=18470 \
+                                md5digest=4f92ddfe818eb757c5483074a292400c
+                stabs.info.gz   size=52827 \
+                                md5digest=3f51427d3472255f36d3de04bca8d5f1
+                texinfo.info.gz size=206961 \
+                                md5digest=73d83515e501fe220cbe8f6d2bea169f
+            # ./usr/share/info
+            ..
+
+        # ./usr/share
+        ..
+
+    # ./usr
+    ..
+
+..
+

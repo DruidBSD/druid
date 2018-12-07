@@ -1,0 +1,41 @@
+--- usr.sbin/wpa/hostapd/Makefile.orig	2011-09-22 17:51:37.000000000 -0700
++++ usr.sbin/wpa/hostapd/Makefile	2012-01-15 21:08:02.000000000 -0800
+@@ -9,12 +9,13 @@
+ 	${WPA_DISTDIR}/src/eapol_auth \
+ 	${WPA_DISTDIR}/src/drivers \
+ 	${WPA_DISTDIR}/src/radius \
++	${WPA_DISTDIR}/src/crypto \
+ 	${WPA_DISTDIR}
+ 
+ PROG=	hostapd
+ SRCS=	accounting.c aes-wrap.c ap_config.c \
+ 	ap_drv_ops.c ap_mlme.c authsrv.c \
+-	chap.c common.c config_file.c ctrl_iface.c crypto_openssl.c \
++	chap.c common.c config_file.c ctrl_iface.c \
+ 	ctrl_iface_ap.c drivers.c drv_callbacks.c dump_state.c \
+ 	eap_common.c eap_peap_common.c eap_register.c eap_server.c \
+ 	eap_server_gtc.c eap_server_identity.c eap_server_md5.c \
+@@ -28,6 +29,12 @@
+ 	tkip_countermeasures.c utils.c \
+ 	vlan_init.c wpa_auth.c wpa_auth_glue.c wpa_auth_ie.c wpa_common.c \
+ 	wpa_debug.c wpabuf.c
++.if ${MK_OPENSSL} != "no"
++SRCS+=	crypto_openssl.c 
++.else
++SRCS+=	aes-internal.c aes-internal-enc.c des-internal.c md4-internal.c \
++	md5-internal.c rc4.c sha1-internal.c
++.endif
+ SRCS+=	l2_packet_freebsd.c driver_freebsd.c os_unix.c
+ 
+ MAN=	hostapd.8 hostapd.conf.5
+@@ -46,8 +53,8 @@
+ CFLAGS+= -DCONFIG_IPV6
+ .endif
+ #CFLAGS+= -g
+-DPADD+=	${LIBPCAP} ${LIBSSL}
+-LDADD+=	-lpcap -lssl
++DPADD+=	${LIBPCAP}
++LDADD+=	-lpcap
+ 
+ # User customizations for wpa_supplicant/hostapd build environment
+ CFLAGS+=${HOSTAPD_CFLAGS}

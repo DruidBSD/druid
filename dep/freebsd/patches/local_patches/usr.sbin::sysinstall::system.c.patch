@@ -1,0 +1,108 @@
+--- usr.sbin/sysinstall/system.c.orig	2012-01-20 09:18:51.000000000 -0800
++++ usr.sbin/sysinstall/system.c	2012-01-20 13:32:14.000000000 -0800
+@@ -233,7 +233,7 @@ systemInitialize(int argc, char **argv)
+     sigaddset(&signalset, SIGINT);
+     sigprocmask(SIG_UNBLOCK, &signalset, NULL);
+ 
+-    (void)vsystem("rm -rf %s", DOC_TMP_DIR);
++    (void)vsystem("%srm -rf %s", xarchInstall() ? "/stand/" : "", DOC_TMP_DIR);
+ }
+ 
+ /* Close down and prepare to exit */
+@@ -262,7 +262,7 @@ systemShutdown(int status)
+     endwin();
+ 
+     /* If we have a temporary doc dir lying around, nuke it */
+-    (void)vsystem("rm -rf %s", DOC_TMP_DIR);
++    (void)vsystem("%srm -rf %s", xarchInstall() ? "/stand/" : "", DOC_TMP_DIR);
+ 
+     /* REALLY exit! */
+     if (RunningAsInit) {
+@@ -278,6 +278,54 @@ systemShutdown(int status)
+ 	exit(status);
+ }
+ 
++int
++ssystem(const char *command)
++{
++	pid_t pid, savedpid;
++	int pstat;
++	struct sigaction ign, intact, quitact;
++	sigset_t newsigblock, oldsigblock;
++	
++	if (!command)		/* just checking... */
++		return(1);
++
++	/*
++	 * Ignore SIGINT and SIGQUIT, block SIGCHLD. Remember to save
++	 * existing signal dispositions.
++	 */
++	ign.sa_handler = SIG_IGN;
++	(void)sigemptyset(&ign.sa_mask);
++	ign.sa_flags = 0;
++	(void)sigaction(SIGINT, &ign, &intact);
++	(void)sigaction(SIGQUIT, &ign, &quitact);
++	(void)sigemptyset(&newsigblock);
++	(void)sigaddset(&newsigblock, SIGCHLD);
++	(void)sigprocmask(SIG_BLOCK, &newsigblock, &oldsigblock);
++	switch(pid = fork()) {
++	case -1:			/* error */
++		break;
++	case 0:				/* child */
++		/*
++		 * Restore original signal dispositions and exec the command.
++		 */
++		(void)sigaction(SIGINT, &intact, NULL);
++		(void)sigaction(SIGQUIT, &quitact, NULL);
++		(void)sigprocmask(SIG_SETMASK, &oldsigblock, NULL);
++		execl("/stand/sh", "sh", "-c", command, (char *)NULL);
++		_exit(127);
++	default:			/* parent */
++		savedpid = pid;
++		do {
++			pid = wait4(savedpid, &pstat, 0, (struct rusage *)0);
++		} while (pid == -1 && errno == EINTR);
++		break;
++	}
++	(void)sigaction(SIGINT, &intact, NULL);
++	(void)sigaction(SIGQUIT, &quitact, NULL);
++	(void)sigprocmask(SIG_SETMASK, &oldsigblock, NULL);
++	return (pid == -1 ? -1 : pstat);
++}
++
+ /* Run some general command */
+ int
+ systemExecute(char *command)
+@@ -295,7 +343,7 @@ systemExecute(char *command)
+ 	tcsetattr(0, TCSANOW, &foo);
+     }
+     if (!Fake)
+-	status = system(command);
++	status = (xarchInstall() ? ssystem(command) : system(command));
+     else {
+ 	status = 0;
+ 	msgDebug("systemExecute:  Faked execution of `%s'\n", command);
+@@ -448,7 +496,13 @@ vsystem(char *fmt, ...)
+ 	    dup2(DebugFD, 2);
+ 	}
+ 	else {
+-	    close(1); open("/dev/null", O_WRONLY);
++	    close(1);
++	    /* If noDevfs is enabled and we're chroot'ed, we should have access
++	     * to `/devfs', so use `/devfs' over `/dev' when available */
++	    if (stat("/devfs/null", &sb) == 0)
++		open("/devfs/null", O_WRONLY);
++	    else
++		open("/dev/null", O_WRONLY);
+ 	    dup2(1, 2);
+ 	}
+ 	if (stat("/stand/sh", &sb) == 0)
+@@ -530,7 +584,7 @@ systemCreateHoloshell(void)
+ 	        printf("Type ``exit'' in this fixit shell to resume sysinstall.\n\n");
+ 		fflush(stdout);
+ 	    }
+-	    execlp("sh", "-sh", NULL);
++	    execlp(xarchInstall() ? "/stand/sh" : "sh", "-sh", NULL);
+ 	    msgDebug("Was unable to execute sh for Holographic shell!\n");
+ 	    exit(1);
+ 	}

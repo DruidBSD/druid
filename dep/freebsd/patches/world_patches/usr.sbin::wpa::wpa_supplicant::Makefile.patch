@@ -1,0 +1,13 @@
+--- usr.sbin/wpa/wpa_supplicant/Makefile.orig	2011-09-22 17:51:37.000000000 -0700
++++ usr.sbin/wpa/wpa_supplicant/Makefile	2012-01-15 18:57:58.000000000 -0800
+@@ -20,6 +20,10 @@
+ 	driver_ndis.c Packet32.c \
+ 	driver_wired.c \
+ 	driver_freebsd.c os_unix.c
++.if ${MK_OPENSSL} == "no"
++SRCS+=	aes-internal-dec.c aes-internal-enc.c md5-internal.c sha1-internal.c \
++	rc4.c
++.endif
+ 
+ MAN=	wpa_supplicant.8 wpa_supplicant.conf.5
+ 

@@ -1,0 +1,62 @@
+#!/bin/sh
+# -*- tab-width:  4 -*- ;; Emacs
+# vi: set tabstop=4     :: Vi/ViM
+
+############################################################ CONFIGURATION
+
+# MENU_ROOT is exported by the mfsroot scripts and contains the path
+# to the directory that our menu resources live in
+
+# Whether to use ANSI color or not
+ANSI_COLOR=YES
+
+# Configuration file (used by `all_install')
+CONF=$MENU_ROOT/etc/install900.conf
+
+############################################################ FUNCTIONS
+
+# Include standard functions
+. "$MENU_ROOT/etc/sh.subr"
+
+############################################################ MAIN SOURCE
+
+print_bold "Starting standard installation...\n"
+
+#
+# Execute common commands for all installs
+#
+. "$MENU_ROOT/etc/all_install" \
+	|| die "Unable to source file \`%s'" "$MENU_ROOT/etc/all_install"
+
+#
+# Append restart command
+#
+task_begin "Finalizing installation script..."
+( echo 'command="/dist/druid/restart"' >> "$CFG_FILE" ) \
+	|| die "Unable to write to file \`%s'" "$CFG_FILE"
+( echo 'system' >> "$CFG_FILE" ) \
+	|| die "Unable to write to file \`%s'" "$CFG_FILE"
+task_end $SUCCESS
+
+#
+# Drop to scripted sysinstall
+#
+print_bold "Beginning Installation..."
+sleep 1.5
+
+exit $SUCCESS
+
+################################################################################
+# END
+################################################################################
+#
+# $Header: /cvsroot/druidbsd/druidbsd/druid/src/freebsd/menu/scripts/standard900,v 1.1 2012/01/28 06:59:53 devinteske Exp $
+#
+# $Copyright: 2006-2012 Devin Teske. All rights reserved. $
+#
+# $Log: standard900,v $
+# Revision 1.1  2012/01/28 06:59:53  devinteske
+# Commit initial public beta release (beta 56)
+#
+#
+################################################################################

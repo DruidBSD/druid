@@ -1,0 +1,10 @@
+--- usr.bin/grep/Makefile.orig	2012-01-20 09:19:00.000000000 -0800
++++ usr.bin/grep/Makefile	2012-01-21 21:39:34.000000000 -0800
+@@ -19,6 +19,7 @@
+ .PATH: ${.CURDIR}/regex
+ SRCS+=	fastmatch.c hashtable.c tre-compile.c tre-fastmatch.c xmalloc.c
+ CFLAGS+=-I${.CURDIR}/regex
++CFLAGS+=--param max-inline-insns-single=256
+ 
+ .if ${MK_BSD_GREP} == "yes"
+ LINKS=	${BINDIR}/grep ${BINDIR}/egrep \

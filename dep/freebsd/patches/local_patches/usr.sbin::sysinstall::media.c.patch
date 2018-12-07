@@ -1,0 +1,94 @@
+--- usr.sbin/sysinstall/media.c.orig	2010-11-17 05:42:06.000000000 -0800
++++ usr.sbin/sysinstall/media.c	2010-11-19 04:15:06.000000000 -0800
+@@ -520,7 +520,7 @@ mediaSetUFS(dialogMenuItem *self)
+     char *cp;
+ 
+     mediaClose();
+-    cp = variable_get_value(VAR_UFS_PATH, "Enter a fully qualified pathname for the directory\n"
++    cp = variable_get_value(VAR_UFS_PATH, "Enter the device-name of a UFS formatted partition\n"
+ 			    "containing the FreeBSD distribution files:", 0);
+     if (!cp)
+ 	return DITEM_FAILURE;
+@@ -532,9 +532,9 @@ mediaSetUFS(dialogMenuItem *self)
+ 	strcpy(ufsDevice.name, st.f_fstypename);
+ 
+     ufsDevice.type = DEVICE_TYPE_UFS;
+-    ufsDevice.init = dummyInit;
++    ufsDevice.init = mediaInitUFS;
+     ufsDevice.get = mediaGetUFS;
+-    ufsDevice.shutdown = dummyShutdown;
++    ufsDevice.shutdown = mediaShutdownUFS;
+     ufsDevice.private = strdup(cp);
+     mediaDevice = &ufsDevice;
+     return DITEM_LEAVE_MENU;
+@@ -607,6 +607,34 @@ mediaSetNFS(dialogMenuItem *self)
+     return DITEM_LEAVE_MENU;
+ }
+ 
++int
++mediaSetNullFS(dialogMenuItem *self)
++{
++    static Device nullfsDevice;
++    char *cp;
++
++    mediaClose();
++
++    /*
++     * Prompt the user for the full path to our installation
++     * files if not already supplied previously.
++     */
++    cp = variable_get_value(VAR_NULLFS_PATH,
++	"Enter a fully qualified pathname for the directory\n"
++	"containing the FreeBSD distribution files:", 0);
++    if (!cp)
++	return DITEM_FAILURE;
++
++    strcpy(nullfsDevice.name, "nullfs");
++    nullfsDevice.type = DEVICE_TYPE_NULLFS;
++    nullfsDevice.init = mediaInitNullFS;
++    nullfsDevice.get = mediaGetNullFS;
++    nullfsDevice.shutdown = mediaShutdownNullFS;
++    nullfsDevice.private = strdup(cp);
++    mediaDevice = &nullfsDevice;
++    return DITEM_LEAVE_MENU;
++}
++
+ Boolean
+ mediaExtractDistBegin(char *dir, int *fd, int *zpid, int *cpid)
+ {
+@@ -629,7 +657,7 @@ mediaExtractDistBegin(char *dir, int *fd
+ 	    dup2(DebugFD, 2);
+ 	else {
+ 	    close(2);
+-	    open("/dev/null", O_WRONLY);
++	    open(noDevfs() ? "/devfs/null" : "/dev/null", O_WRONLY);
+ 	}
+ 	close(qfd[1]);
+ 	close(pfd[0]);
+@@ -652,7 +680,7 @@ mediaExtractDistBegin(char *dir, int *fd
+ 	    dup2(DebugFD, 2);
+ 	}
+ 	else {
+-	    close(1); open("/dev/null", O_WRONLY);
++	    close(1); open(noDevfs() ? "/devfs/null" : "/dev/null", O_WRONLY);
+ 	    dup2(1, 2);
+ 	}
+ 	if (strlen(cpioVerbosity()))
+@@ -720,7 +748,7 @@ mediaExtractDist(char *dir, char *dist, 
+ 	    dup2(DebugFD, 2);
+ 	else {
+ 	    close(2);
+-	    open("/dev/null", O_WRONLY);
++	    open(noDevfs() ? "/devfs/null" : "/dev/null", O_WRONLY);
+ 	}
+ 	i = execl(unzipper, unzipper, (char *)0);
+ 	if (isDebug())
+@@ -740,7 +768,7 @@ mediaExtractDist(char *dir, char *dist, 
+ 	    dup2(DebugFD, 2);
+ 	}
+ 	else {
+-	    dup2(open("/dev/null", O_WRONLY), 1);
++	    dup2(open(noDevfs() ? "/devfs/null" : "/dev/null", O_WRONLY), 1);
+ 	    dup2(1, 2);
+ 	}
+ 	if (strlen(cpioVerbosity()))
